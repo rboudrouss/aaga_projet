@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Auto-detect runtime and execute the CLI
+
+# Check if Deno is available
+if command -v deno &> /dev/null; then
+    # Run with Deno
+    exec deno run --allow-read --allow-write --allow-env "$(dirname "$0")/cli.ts" "$@"
+fi
+
+# Check if Node.js bundle exists
+if [ -f "$(dirname "$0")/dist/cli.js" ]; then
+    # Check if Node.js is available
+    if command -v node &> /dev/null; then
+        # Run with Node.js
+        exec node "$(dirname "$0")/dist/cli.js" "$@"
+    else
+        echo "Error: Node.js is not installed"
+        echo ""
+        echo "The pre-built bundle (dist/cli.js) exists, but Node.js is required to run it."
+        echo ""
+        echo "Please install Node.js from: https://nodejs.org/"
+        echo "Or install Deno from: https://deno.land/"
+        exit 1
+    fi
+fi
+
+# Neither Deno nor the Node.js bundle is available
+echo "Error: No runtime available"
+echo ""
+echo "The pre-built bundle (dist/cli.js) does not exist."
+echo "You need Deno to run the TypeScript source directly."
+echo ""
+echo "Please install Deno from: https://deno.land/"
